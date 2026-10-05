@@ -1,0 +1,27 @@
+name: brew test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Homebrew and tap this repository
+        id: setup
+        uses: Homebrew/actions/setup-homebrew@main
+
+      - name: Audit formulae
+        run: brew audit --strict --online "${{ steps.setup.outputs.tap-name }}/nicevg"
+
+      - name: Install from source
+        run: brew install --build-from-source "${{ steps.setup.outputs.tap-name }}/nicevg"
+
+      - name: Run formula tests
+        run: brew test "${{ steps.setup.outputs.tap-name }}/nicevg"
