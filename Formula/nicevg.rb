@@ -1,15 +1,14 @@
 class Nicevg < Formula
   desc "Deterministic checks and repairs for SVG diagrams"
   homepage "https://github.com/takagiy/nicevg"
-  url "https://github.com/takagiy/nicevg/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "3dcb9b79b80c17c281f951b9de3d901f11ebf73f644a99227b8a9a02a3196341"
+  url "https://github.com/takagiy/nicevg/archive/refs/tags/v0.2.0.tar.gz"
+  sha256 "7cd330e740c45dd58f5d191dd4b7ee87c007af631b370579982693b3db8a4207"
   license "MIT"
 
-  depends_on "bun" => :build
+  depends_on "rust" => :build
 
   def install
-    system "bun", "install", "--frozen-lockfile", "--production"
-    system "bun", "build", "--compile", "src/cli.ts", "--outfile", bin/"nicevg"
+    system "cargo", "install", *std_cargo_args
   end
 
   test do
