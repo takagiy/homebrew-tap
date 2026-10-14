@@ -1,8 +1,8 @@
 class Nicevg < Formula
   desc "Deterministic checks and repairs for SVG diagrams"
   homepage "https://github.com/takagiy/nicevg"
-  url "https://github.com/takagiy/nicevg/archive/refs/tags/v0.15.1.tar.gz"
-  sha256 "9f1837ab6d412123a76b7a3d71235b81738d421c3e4b481f82214dc04ab76979"
+  url "https://github.com/takagiy/nicevg/archive/refs/tags/v0.16.0.tar.gz"
+  sha256 "6559e7b33fba220c1549c4a20c9e494ab8f984666f9bcd36500a11c84f604f08"
   license "MIT"
 
   depends_on "rust" => :build
