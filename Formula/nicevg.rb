@@ -1,8 +1,8 @@
 class Nicevg < Formula
   desc "Deterministic checks and repairs for SVG diagrams"
   homepage "https://github.com/takagiy/nicevg"
-  url "https://registry.npmjs.org/nicevg/-/nicevg-0.18.1.tgz"
-  sha256 "b7e97e6043d52e9baf7723cbd18a54e90d969924f59393aad5509d04b35011a0"
+  url "https://registry.npmjs.org/nicevg/-/nicevg-0.19.0.tgz"
+  sha256 "5e1594d17affc6cb4dedb1a1f5b48cc234baf7bcba065ece081c4fd13fdb9cbf"
   license "MIT"
 
   depends_on "node"
