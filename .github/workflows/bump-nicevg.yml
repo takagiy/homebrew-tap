@@ -1,0 +1,64 @@
+name: Bump nicevg
+
+# Points the formula at nicevg's latest version on npm once npm serves it,
+# and commits it with this repository's own token after installing and
+# testing it, so nicevg's release needs no token for this tap. A commit
+# pushed with that token starts no other workflow, so `brew test` runs here.
+#
+# GitHub stops a scheduled workflow after 60 days without activity in a
+# public repository: after a long gap between releases, run
+# `gh workflow enable bump-nicevg.yml` and `gh workflow run bump-nicevg.yml`.
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-nicevg
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Homebrew and tap this repository
+        id: setup
+        uses: Homebrew/actions/setup-homebrew@main
+
+      - name: Point the formula at npm's latest version
+        id: bump
+        working-directory: ${{ steps.setup.outputs.repository-path }}
+        run: |
+          version=$(curl -fsS https://registry.npmjs.org/nicevg/latest | jq -r .version)
+          [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "npm gave version '$version'"; exit 1; }
+          url="https://registry.npmjs.org/nicevg/-/nicevg-$version.tgz"
+          if grep -qF "url \"$url\"" Formula/nicevg.rb; then
+            echo "The formula is at $version already."
+            exit 0
+          fi
+          sha256=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          sed -i -E "s|^  url \".*\"$|  url \"$url\"|; s|^  sha256 \".*\"$|  sha256 \"$sha256\"|" Formula/nicevg.rb
+          git diff
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Audit, install and test the formula
+        if: steps.bump.outputs.version
+        run: |
+          brew audit --strict --online "${{ steps.setup.outputs.tap-name }}/nicevg"
+          brew install --build-from-source "${{ steps.setup.outputs.tap-name }}/nicevg"
+          brew test "${{ steps.setup.outputs.tap-name }}/nicevg"
+
+      - name: Commit and push
+        if: steps.bump.outputs.version
+        working-directory: ${{ steps.setup.outputs.repository-path }}
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "nicevg $VERSION"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
